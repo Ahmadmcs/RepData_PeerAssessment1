@@ -1,21 +1,43 @@
----
-title: 'Reproducible Research: Peer Assessment 1'
-output:
-  html_document:
-    keep_md: yes
-  pdf_document: default
----
+# Reproducible Research: Peer Assessment 1
 
 
 ## Loading and preprocessing the data
-```{r Load_library, echo=TRUE}
-library(chron)
-library(ggplot2)
-library(dplyr)
 
+```r
+library(chron)
+```
 
 ```
-```{r unzip_and_Read_Data, echo = TRUE}
+## Warning: package 'chron' was built under R version 3.3.1
+```
+
+```r
+library(ggplot2)
+library(dplyr)
+```
+
+```
+## Warning: package 'dplyr' was built under R version 3.3.1
+```
+
+```
+## 
+## Attaching package: 'dplyr'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     filter, lag
+```
+
+```
+## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union
+```
+
+```r
 datafileName <- "activity.zip"
 
  if(!file.exists("activity.csv")){
@@ -33,48 +55,62 @@ activityDataframe <- read.csv("activity.csv")
 
 ## What is mean total number of steps taken per day?
 Calculate the total number of steps taken per day
-```{r calculate_steps_per_day, echo = TRUE}
+
+```r
 sum_steps_per_day <- aggregate(steps~date, 
                                 data=activityDataframe,
                                 FUN=sum, na.rm=TRUE)
-
 ```
 
 The means are graphically represented in the below histogram
 
-```{r steps_per_day_histogram, echo=TRUE, fig.height=8, fig.width=8}
+
+```r
 plot.new()
 hist(sum_steps_per_day$steps, xlab = "sum of steps per day", main = "histogram of steps per day")
-
 ```
+
+![](PA1_template_files/figure-html/steps_per_day_histogram-1.png)<!-- -->
 
 Calculate and report the mean and median of the total number of steps taken per day
 *Calculating the mean and median*
-```{r calculate_steps_mean_per_day, echo=TRUE}
+
+```r
 mean_sum_steps_each_day <- mean(sum_steps_per_day$steps)
 print(
     paste("The Mean of steps per day is: ", 
           mean_sum_steps_each_day, 
           sep = " ")
     )
+```
 
+```
+## [1] "The Mean of steps per day is:  10766.1886792453"
+```
+
+```r
 median_sum_steps_each_day <- median(sum_steps_per_day$steps)
 print(paste("The Median of steps per day is: ", median_sum_steps_each_day, sep = " "))
+```
 
+```
+## [1] "The Median of steps per day is:  10765"
 ```
 
 ## What is the average daily activity pattern?
 Time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
 *Creating a dataframe with the mean of each 5-minute interval*
-```{r daily_steps_pattern, echo=TRUE}
+
+```r
 mean_steps_interval <- aggregate(steps~interval, 
                                  data = activityDataframe,
                                  FUN=mean, 
                                  na.rm =TRUE)
 ```
 *Generating the plot diagram*
-```{r generate_time_series, echo=TRUE, fig.height=8, fig.width=8}
+
+```r
 plot.new()
 plot(x = mean_steps_interval$interval,
      y = mean_steps_interval$steps, 
@@ -84,9 +120,12 @@ plot(x = mean_steps_interval$interval,
      main = "Averages Steps per interval pattern" ) 
 ```
 
+![](PA1_template_files/figure-html/generate_time_series-1.png)<!-- -->
+
 **The 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps**
 
-```{r max_steps_interval, echo=TRUE}
+
+```r
 max_steps <- max(mean_steps_interval$steps)
 max_steps_interval <- filter(mean_steps_interval,
                              steps == max_steps)
@@ -95,18 +134,28 @@ print(
            max_steps_interval[1,2][1], 
            sep = " ")
      )
-    
+```
+
+```
+## [1] "Maximum Steps are  206.169811320755"
+```
+
+```r
 print(
      paste("Maximum Interval is ",
            max_steps_interval[1,1][1], 
            sep = " ")
      )
+```
 
+```
+## [1] "Maximum Interval is  835"
 ```
 
 ## Imputing missing values
 the total number of missing values in the dataset
-```{r missing_values, echo=TRUE}
+
+```r
 missing_values <- nrow(filter(activityDataframe, is.na(steps) == TRUE ))
 print(
     paste("The number of missing values is:", 
@@ -114,10 +163,15 @@ print(
           sep = " ")
 )
 ```
+
+```
+## [1] "The number of missing values is: 2304"
+```
 **Strategy for filling in all of the missing values in the dataset**
 *Use the median of the inteval*
  
-```{r filling_missing_values, echo=TRUE}
+
+```r
 Filled_activity_DataFrame = activityDataframe
 median_steps_interval <- aggregate(steps~interval, 
                                  data = activityDataframe,
@@ -136,11 +190,11 @@ for (i in 1:nrow(Filled_activity_DataFrame)){
                        Filled_activity_DataFrame$interval[i])[,2]
     }
 }
-
 ```
 
 *recalculating the number of missing values*
-```{r recalculate missing values, echo=TRUE}
+
+```r
 missing_values <- nrow(filter(Filled_activity_DataFrame, 
                               is.na(steps) == TRUE ))
 print(
@@ -149,26 +203,34 @@ print(
           sep = " ")
 )
 ```
+
+```
+## [1] "The number of missing values is: 0"
+```
 **A histogram of the total number of steps taken each day in the filled data frame**
 *calculating the new total steps per day*
-```{r calculate_filled_steps_per_day, echo = TRUE}
+
+```r
 filled_sum_steps_per_day <- aggregate(steps~date, 
                                 data=Filled_activity_DataFrame,
                                 FUN=sum, na.rm=TRUE)
-
 ```
 *Creating new histogram*
-```{r filled_steps_per_day_histogram, echo=TRUE, fig.height=8, fig.width=8}
+
+```r
 plot.new()
 hist(filled_sum_steps_per_day$steps, 
      xlab = "sum of steps per day", 
      main = "histogram of steps per day after filling missing data")
 ```
 
+![](PA1_template_files/figure-html/filled_steps_per_day_histogram-1.png)<!-- -->
+
 **Calculate and report the mean and median total number of steps taken per day**
 
 *Calculating the mean and median*
-```{r calculate_filled_mean_steps_per_day, echo=TRUE}
+
+```r
 mean_sum_filled_steps_each_day <-
     mean(filled_sum_steps_per_day$steps)
 
@@ -177,13 +239,22 @@ print(
           mean_sum_filled_steps_each_day, 
           sep = " ")
     )
+```
 
+```
+## [1] "The Mean of steps per day after filling missing data is:  9503.86885245902"
+```
+
+```r
 median_sum_filled_steps_each_day <-
     median(filled_sum_steps_per_day$steps)
 
 print(paste("The Median of steps per day after filling missing data is: ",
             median_sum_filled_steps_each_day, sep = " "))
+```
 
+```
+## [1] "The Median of steps per day after filling missing data is:  10395"
 ```
 
 **Notice: that the mean has decreased and the median has increased**
@@ -192,9 +263,8 @@ print(paste("The Median of steps per day after filling missing data is: ",
 **Creating a new factor variable in the dataset with two levels - "weekday" and "weekend" indicating whether a given date is a weekday or weekend day**
 
 *Preparing day class column and aggregating data*
-```{r weekday_classification, echo=TRUE}
 
-
+```r
 Filled_activity_DataFrame$dayClass <- c("type_of_day")
 
 
@@ -212,12 +282,11 @@ Filled_activity_DataFrame$type_of_day =
     as.factor(Filled_activity_DataFrame$type_of_day)
 
 day_type_mean_data <- aggregate(steps ~ interval + type_of_day, Filled_activity_DataFrame, mean)
-
 ```
 
 *Generating the time series*
-```{r day_type_plot, echo=TRUE, fig.height=8, fig.width=8}
 
+```r
 qplot(interval, 
       steps, 
       data = day_type_mean_data, 
@@ -227,4 +296,6 @@ qplot(interval,
       main = "") +
   facet_wrap(~ type_of_day, ncol = 1)
 ```
+
+![](PA1_template_files/figure-html/day_type_plot-1.png)<!-- -->
 
